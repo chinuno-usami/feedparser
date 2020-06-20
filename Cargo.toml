@@ -1,0 +1,15 @@
+[package]
+name = "feedparser"
+version = "0.1.0"
+authors = ["Chinuno Usami <usami@chinuno.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "feedparser"
+crate-type = ["cdylib","rlib","staticlib"]
+
+[dependencies]
+libc = "0.2"
+feed-rs = "0.3"
+reqwest = { version = "0.10", features = ["blocking"] }
