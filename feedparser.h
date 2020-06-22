@@ -3,7 +3,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    struct Feed;
     struct DO_NOT_USE;
     struct FeedString{
         char* data;
@@ -23,12 +22,11 @@ extern "C" {
         FeedEntry* entries;
         time_t updated;
         FeedString title;
-        DO_NOT_USE* data;
+        DO_NOT_USE* datav;
+        DO_NOT_USE* dataf;
     };
-    Feed* get_feed(const char*);
-    FeedInfo* get_feedinfo(Feed*);
-    void release_feedinfo(FeedInfo**);
-    void release_feed(Feed**);
+    FeedInfo* feedparser_parse_url(const char*);
+    void feedparser_release_feedinfo(FeedInfo**);
 #ifdef __cplusplus
 }
 #endif

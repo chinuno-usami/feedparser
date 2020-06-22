@@ -9,12 +9,11 @@ std::string feedstring2string(FeedString& str){
 }
 
 int main(){
-    Feed* feed = get_feed("https://rsshub.app/telegram/channel/awesomeDIYgod");
-    if(!feed){
+    FeedInfo* info = feedparser_parse_url("https://rsshub.app/telegram/channel/awesomeDIYgod");
+    if(!info){
         cout << "get feed failed\n";
         return 1;
     }
-    FeedInfo* info = get_feedinfo(feed);
 
     std::string s(info->title.data, info->title.size);
     cout << "title:" << s<<endl;
@@ -39,7 +38,6 @@ int main(){
         cout << endl;
     }
 
-    release_feedinfo(&info);
-    release_feed(&feed);
+    feedparser_release_feedinfo(&info);
 
 }
