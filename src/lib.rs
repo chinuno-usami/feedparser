@@ -3,6 +3,20 @@ use std::ffi::CStr;
 use libc::c_char;
 use libc::c_ulong;
 use libc::time_t;
+use std::error::Error;
+use std::fmt;
+
+#[derive(Debug)]
+struct WrapError(String);
+
+impl fmt::Display for WrapError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "Feed parse error: {}", self.0)
+        }
+}
+
+impl Error for WrapError {}
+
 
 #[repr(C)]
 pub struct FeedString {
@@ -37,9 +51,21 @@ fn set_string(src:&String, dst:&mut FeedString) {
 
 
 fn parse_url(url: &str) -> Result<feed_rs::model::Feed, Box<dyn std::error::Error>> {
-    let resp = reqwest::blocking::get(url)?.text()?;
-    let feed_from_xml = parser::parse(resp.as_bytes()).unwrap();
-    Ok(feed_from_xml)
+    let resp = reqwest::blocking::get(url)?;
+    if resp.status().is_success(){
+        let body = resp.text()?;
+        let feed_from_xml = parser::parse(body.as_bytes());//.unwrap();
+        match feed_from_xml {
+            Ok(_) => {
+                Ok(feed_from_xml.unwrap())
+            },
+            _ => {
+                Err(Box::new(WrapError(format!("body:{}", body).into())))
+            }
+        }
+    } else {
+        Err(Box::new(WrapError(format!("request failed with status:{:?}", resp.status()).into())))
+    }
 }
 
 #[no_mangle]
@@ -129,7 +155,6 @@ pub extern fn feedparser_parse_url(url: *const c_char) -> *mut FeedInfo{
             }
             Err(e) => {
                 println!("Error: {}", e);
-                println!("Caused by: {}", e.source().unwrap());
                 std::ptr::null_mut()
             }
         }
